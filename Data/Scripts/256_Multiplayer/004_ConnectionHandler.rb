@@ -39,7 +39,7 @@ class ConnectionHandler
             when 'location' then Invoker.populate('move_packet', data)
               # Running this from a thread causes Segmentation Fault, 
               # data is being sent to an event which is always listening and executing from a safe place.
-            when 'gifts' then handle_gift(data)
+            when 'gifts' then Invoker.populate('gift_packet', data)
             end
           rescue Exception => e
             puts "[IFM] - WARNING: Malformed message was sent."
@@ -139,4 +139,9 @@ def handle_location(data)
   ConnectionHandler.handle_location(data)
 end
 
+def handle_gift(data)
+  ConnectionHandler.handle_gift(data)
+end
+
 Invoker.add_type('move_packet', :handle_location)
+Invoker.add_type('gift_packet', :handle_gift)
