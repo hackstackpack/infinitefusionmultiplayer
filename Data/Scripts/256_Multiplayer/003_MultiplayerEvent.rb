@@ -84,7 +84,25 @@ class Ifm_Event
   end
 
   def walkto(x, y, state = "walk", direction = 2)
-      EventManager.walkto(@event, x, y, state, direction)
+      # If we're already moving to a position, force complete that movement first
+      if @walk_thread && @walk_thread.alive?
+        old_dest = @walk_thread[:destination]
+        if old_dest
+          @event.moveto(old_dest[:x], old_dest[:y])
+          rotate(old_dest[:direction])
+        end
+        @walk_thread.kill
+      end
+
+      # Create new thread to track the movement
+      @walk_thread = Thread.new do
+        Thread.current[:destination] = { x: x, y: y, direction: direction }
+        # Execute movement on main thread
+        EventManager.walkto(@event, x, y, state, direction)
+        # Keep thread alive until movement completes
+        sleep 0.1 while @event.moving?
+        # Thread will naturally end when movement is done
+      end
   end
 
   def rotate(direction)

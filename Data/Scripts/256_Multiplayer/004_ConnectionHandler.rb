@@ -104,19 +104,7 @@ class ConnectionHandler
             ev.refresh_graphics(data["graphic"])
             #Refresh player graphic
           end
-          
-          old_thr = ev.walk_thread
-          if !old_thr.nil? && old_thr.alive?
-            old_thr.kill
-          end
-
-          walkThread = Thread.new do
-            ev.walkto(data["x"], data["y"], data["graphic"]["action"]); sleep 0.2 until [ev.event.x, ev.event.y] == [data["x"], data["y"]]
-            ev.rotate(data["direction"])
-          end
-
-          ev.walk_thread = walkThread
-
+          ev.walkto(data["x"], data["y"], data["graphic"]["action"], data["direction"])
         else
           # New player -> create a new event
 
